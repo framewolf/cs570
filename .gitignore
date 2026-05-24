@@ -1,0 +1,31 @@
+# External repositories are cloned here for local development.
+# robomimic is part of this monorepo; robosuite remains an external dependency.
+robosuite/
+.nested_git_backup/
+
+# Project-generated artifacts
+project/results/
+project/outputs/
+project/logs/
+project/wandb/
+robomimic/datasets/
+robomimic/robomimic/results/
+robomimic/results/
+
+# Common heavy artifacts
+/datasets/
+*.hdf5
+*.h5
+*.pth
+*.pt
+*.ckpt
+*.mp4
+*.avi
+*.mov
+*.log
+events.out.tfevents.*
+
+# Python / OS noise
+__pycache__/
+*.py[cod]
+.DS_Store

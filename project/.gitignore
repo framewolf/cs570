@@ -1,0 +1,23 @@
+# Training / evaluation outputs
+results/
+outputs/
+logs/
+wandb/
+
+# Datasets and large model artifacts
+datasets/
+*.hdf5
+*.h5
+*.pth
+*.pt
+*.ckpt
+*.mp4
+*.avi
+*.mov
+*.log
+events.out.tfevents.*
+
+# Python / OS noise
+__pycache__/
+*.py[cod]
+.DS_Store
