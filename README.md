@@ -150,7 +150,9 @@ $ROBOMIMIC_DIR/datasets/transport/ph/low_dim_v15.hdf5
 
 ## 4. Debug Simulation + Training
 
-Run a short debug test for all tasks:
+Run a debug test for all tasks. This uses robomimic `--debug`: 2 epochs, 3
+training batches per epoch, and 2 rollout episodes of horizon 10 after each
+epoch.
 
 ```bash
 cd "$CS570_ROOT/project"
@@ -172,6 +174,9 @@ dataset -> model init -> short training -> robosuite rollout -> video/offscreen 
 ---
 
 ## 5. Sanity Training
+
+The sanity config trains for 100 epochs, with 100 training batches per epoch,
+5 rollout episodes every 25 epochs, and rollout horizon 400.
 
 Train Lift with the sanity config:
 
@@ -211,6 +216,8 @@ bash scripts/train_one.sh lift 0 configs/dp_lowdim_full.json
 ---
 
 ## 7. Find Checkpoints
+
+`train_one.sh` writes checkpoints under `project/results`.
 
 ```bash
 cd "$CS570_ROOT/project"

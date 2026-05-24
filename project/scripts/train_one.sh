@@ -19,22 +19,39 @@ esac
 PROJECT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 CS570_ROOT=${CS570_ROOT:-$HOME/cs570}
 ROBOMIMIC_DIR=${ROBOMIMIC_DIR:-$CS570_ROOT/robomimic}
+OUTPUT_DIR="${PROJECT_DIR}/results"
+CONFIG_PATH="${PROJECT_DIR}/${config}"
+RUNTIME_CONFIG=$(mktemp)
+trap 'rm -f "$RUNTIME_CONFIG"' EXIT
 
 export MUJOCO_GL=${MUJOCO_GL:-egl}
 export CUDA_VISIBLE_DEVICES=$gpu
 
 dataset=$(ls "${ROBOMIMIC_DIR}/datasets/${task}/ph/low_dim"*.hdf5 | head -n 1)
 
+python - "$CONFIG_PATH" "$RUNTIME_CONFIG" "$OUTPUT_DIR" <<'PY'
+import json
+import sys
+
+src, dst, output_dir = sys.argv[1:4]
+with open(src, "r", encoding="utf-8") as f:
+    config = json.load(f)
+config["train"]["output_dir"] = output_dir
+with open(dst, "w", encoding="utf-8") as f:
+    json.dump(config, f, indent=4)
+PY
+
 echo "PROJECT_DIR: ${PROJECT_DIR}"
 echo "ROBOMIMIC_DIR: ${ROBOMIMIC_DIR}"
 echo "TASK: ${task}"
 echo "GPU: ${gpu}"
-echo "CONFIG: ${PROJECT_DIR}/${config}"
+echo "CONFIG: ${CONFIG_PATH}"
+echo "OUTPUT_DIR: ${OUTPUT_DIR}"
 echo "DATASET: ${dataset}"
 
 cd "$PROJECT_DIR"
 
 python "${ROBOMIMIC_DIR}/robomimic/scripts/train.py" \
-  --config "${PROJECT_DIR}/${config}" \
+  --config "${RUNTIME_CONFIG}" \
   --dataset "${dataset}" \
   --name "dp_${task}_$(basename "$config" .json)"
