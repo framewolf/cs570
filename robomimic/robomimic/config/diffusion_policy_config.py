@@ -77,3 +77,10 @@ class DiffusionPolicyConfig(BaseConfig):
         self.algo.ddim.set_alpha_to_one = True
         self.algo.ddim.steps_offset = 0
         self.algo.ddim.prediction_type = 'epsilon'
+         # DEIS settings
+        self.algo.deis.enabled = False
+        self.algo.deis.num_train_timesteps = 100
+        self.algo.deis.num_inference_timesteps = 10
+        self.algo.deis.beta_schedule = 'squaredcos_cap_v2'
+        self.algo.deis.solver_order = 2
+        self.algo.deis.prediction_type = 'epsilon'
