@@ -67,6 +67,7 @@ Set environment variables:
 export ROBOMIMIC_DIR=$CS570_ROOT/robomimic
 export ROBOSUITE_DIR=$CS570_ROOT/robosuite
 export MUJOCO_GL=egl
+export MUJOCO_EGL_DEVICE_ID=0
 ```
 
 Optional: add them permanently.
