@@ -12,6 +12,7 @@ import torch.nn.functional as F
 # requires diffusers==0.11.1
 from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
 from diffusers.schedulers.scheduling_ddim import DDIMScheduler
+from diffusers.schedulers.scheduling_deis_multistep import DEISMultistepScheduler
 from diffusers.training_utils import EMAModel
 
 import robomimic.models.obs_nets as ObsNets
@@ -104,13 +105,20 @@ class DiffusionPolicyUNet(PolicyAlgo):
                 steps_offset=self.algo_config.ddim.steps_offset,
                 prediction_type=self.algo_config.ddim.prediction_type
             )
+        elif self.algo_config.deis.enabled:
+            noise_scheduler = DEISMultistepScheduler(
+                num_train_timesteps=self.algo_config.deis.num_train_timesteps,
+                beta_schedule=self.algo_config.deis.beta_schedule,
+                solver_order=self.algo_config.deis.solver_order,
+                prediction_type=self.algo_config.deis.prediction_type
+            )
         else:
             raise RuntimeError()
         
         # setup EMA
         ema = None
         if self.algo_config.ema.enabled:
-            ema = EMAModel(model=nets, power=self.algo_config.ema.power)
+            ema = EMAModel(parameters=nets.parameters(), power=self.algo_config.ema.power)
                 
         # set attrs
         self.nets = nets
@@ -232,7 +240,7 @@ class DiffusionPolicyUNet(PolicyAlgo):
                 
                 # update Exponential Moving Average of the model weights
                 if self.ema is not None:
-                    self.ema.step(self.nets)
+                    self.ema.step(self.nets.parameters())
                 
                 step_info = {
                     "policy_grad_norms": policy_grad_norms
@@ -311,13 +319,16 @@ class DiffusionPolicyUNet(PolicyAlgo):
             num_inference_timesteps = self.algo_config.ddpm.num_inference_timesteps
         elif self.algo_config.ddim.enabled is True:
             num_inference_timesteps = self.algo_config.ddim.num_inference_timesteps
+        elif self.algo_config.deis.enabled is True:
+            num_inference_timesteps = self.algo_config.deis.num_inference_timesteps
         else:
             raise ValueError
         
         # select network
         nets = self.nets
         if self.ema is not None:
-            nets = self.ema.averaged_model
+            self.ema.store(self.nets.parameters())
+            self.ema.copy_to(self.nets.parameters())
         
         # encode obs
         inputs = {
@@ -361,6 +372,8 @@ class DiffusionPolicyUNet(PolicyAlgo):
                 sample=naction
             ).prev_sample
 
+        if self.ema is not None:
+            self.ema.restore(self.nets.parameters())
         # process action using Ta
         start = To - 1
         end = start + Ta
@@ -375,7 +388,7 @@ class DiffusionPolicyUNet(PolicyAlgo):
             "nets": self.nets.state_dict(),
             "optimizers": { k : self.optimizers[k].state_dict() for k in self.optimizers },
             "lr_schedulers": { k : self.lr_schedulers[k].state_dict() if self.lr_schedulers[k] is not None else None for k in self.lr_schedulers },
-            "ema": self.ema.averaged_model.state_dict() if self.ema is not None else None,
+            "ema": self.ema.state_dict() if self.ema is not None else None,
         }
 
     def deserialize(self, model_dict, load_optimizers=False):
@@ -397,7 +410,7 @@ class DiffusionPolicyUNet(PolicyAlgo):
             model_dict["lr_schedulers"] = {}
 
         if model_dict.get("ema", None) is not None:
-            self.ema.averaged_model.load_state_dict(model_dict["ema"])
+            self.ema.load_state_dict(model_dict["ema"])
 
         if load_optimizers:
             for k in model_dict["optimizers"]:
