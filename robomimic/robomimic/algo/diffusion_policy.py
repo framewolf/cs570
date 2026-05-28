@@ -341,6 +341,8 @@ class DiffusionPolicyUNet(PolicyAlgo):
             num_inference_timesteps = self.algo_config.ddim.num_inference_timesteps
         elif self.algo_config.deis.enabled is True:
             num_inference_timesteps = self.algo_config.deis.num_inference_timesteps
+        elif self.algo_config.dpm_solver.enabled is True:
+            num_inference_timesteps = self.algo_config.dpm_solver.num_inference_timesteps
         else:
             raise ValueError
 
