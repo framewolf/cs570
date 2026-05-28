@@ -6,7 +6,7 @@ latencies = []
 successes = []
 horizons = []
 
-def benchmark(policy, env, num_rollouts=50, horizon=400):
+def benchmark(policy, env, num_rollouts=10, horizon=400):
 
     for rollout_idx in range(num_rollouts):
 
