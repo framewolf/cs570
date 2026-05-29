@@ -1,0 +1,37 @@
+{
+    "_method": "Progressive Distillation (Salimans & Ho, ICLR 2022)",
+    "_pipeline": "project/scripts/run_distill.py  (external diffusion_distiller library)",
+    "_usage": "bash project/scripts/distill_all.sh <task> <gpu> [num_iters] [batch_size] [save_every] [wandb_project]",
+    "_example": "bash project/scripts/distill_all.sh lift 0 50000 64 5000 diffusion-policy-pd",
+
+    "distill": {
+        "num_iters": 50000,
+        "batch_size": 64,
+        "lr": 3e-5,
+        "gamma": 0.0,
+        "save_every": 5000,
+        "wandb_project": "diffusion-policy-pd"
+    },
+
+    "step_schedule": [100, 50, 25, 12, 6, 3, 1],
+
+    "eval": {
+        "n_rollouts": 50,
+        "seed": 0,
+        "horizons": {
+            "lift":       400,
+            "can":        400,
+            "square":     400,
+            "transport":  700,
+            "tool_hang":  700
+        }
+    },
+
+    "notes": {
+        "inference": "v-prediction via GaussianDiffusionDefault.p_sample_loop (eval_student.py)",
+        "checkpoint_format": "{task}/student_step{NNN}/student.pt  (EMA weights)",
+        "intermediate_ckpts": "{task}/student_step{NNN}/iter_{NNNNNNN}/student.pt",
+        "teacher_format": "robomimic .pth  →  convert_ckpt.py  →  distiller format (.pt)",
+        "alpha_table": "DPNetwork always uses 100-step squaredcos_cap_v2 schedule regardless of distillation level"
+    }
+}

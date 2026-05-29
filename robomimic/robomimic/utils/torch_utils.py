@@ -142,6 +142,11 @@ def lr_scheduler_from_optim_params(net_optim_params, net, optimizer):
     num_train_batches = net_optim_params["num_train_batches"]
     num_epochs = net_optim_params["num_epochs"]
 
+    # During inference/eval, train.py does not inject num_train_batches / num_epochs,
+    # so they remain empty Config objects. Skip scheduler creation in that case.
+    if not isinstance(num_train_batches, int) or not isinstance(num_epochs, int):
+        return None
+
     lr_scheduler = None
     if lr_scheduler_type == "linear":
         epoch_schedule = net_optim_params["learning_rate"]["epoch_schedule"]
