@@ -469,8 +469,13 @@ def env_from_checkpoint(ckpt_path=None, ckpt_dict=None, env_name=None, render=Fa
     ckpt_dict = maybe_dict_from_checkpoint(ckpt_path=ckpt_path, ckpt_dict=ckpt_dict)
 
     # metadata from model dict to get info needed to create environment
-    env_meta = ckpt_dict["env_metadata"]
     shape_meta = ckpt_dict["shape_metadata"]
+    env_meta = ckpt_dict["env_metadata"].copy()
+    obs_keys = shape_meta.get("all_obs_keys", shape_meta.get("all_shapes", {}).keys())
+    if LangUtils.LANG_EMB_OBS_KEY not in obs_keys:
+        # Low-dim checkpoints can carry a dataset language string in env metadata,
+        # but should not require CLIP weights unless lang_emb is an observation.
+        env_meta["lang"] = None
 
     # create env from saved metadata
     env = EnvUtils.create_env_from_metadata(

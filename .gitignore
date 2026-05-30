@@ -11,9 +11,14 @@ project/wandb/
 robomimic/datasets/
 robomimic/robomimic/results/
 robomimic/results/
+.cache/
+.hf/
+.mplconfig/
 
 # Common heavy artifacts
 /datasets/
+dp_teacher_checkpoints_5tasks/
+dp_teacher_checkpoints_5tasks.tar.gz
 *.hdf5
 *.h5
 *.pth

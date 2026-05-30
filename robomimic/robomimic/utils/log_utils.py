@@ -56,31 +56,38 @@ class DataLogger(object):
             self._tb_logger = SummaryWriter(os.path.join(log_dir, 'tb'))
 
         if log_wandb:
-            import wandb
+            try:
+                import wandb
+            except ImportError as e:
+                log_warning("wandb is not installed, disabling wandb logging: {}".format(e))
+                wandb = None
+            if wandb is None:
+                return
             import robomimic.macros as Macros
             
             # set up wandb api key if specified in macros
-            if Macros.WANDB_API_KEY is not None:
+            if Macros.WANDB_API_KEY is not None and os.environ.get("WANDB_API_KEY") is None:
                 os.environ["WANDB_API_KEY"] = Macros.WANDB_API_KEY
 
-            assert Macros.WANDB_ENTITY is not None, "WANDB_ENTITY macro is set to None." \
-                    "\nSet this macro in {base_path}/macros_private.py" \
-                    "\nIf this file does not exist, first run python {base_path}/scripts/setup_macros.py".format(base_path=robomimic.__path__[0])
+            wandb_entity = os.environ.get("WANDB_ENTITY", Macros.WANDB_ENTITY)
+            wandb_mode = os.environ.get("WANDB_MODE", None)
             
-            # attempt to set up wandb 10 times. If unsuccessful after these trials, don't use wandb
-            num_attempts = 10
+            # attempt to set up wandb a few times. If unsuccessful after these trials, don't use wandb
+            num_attempts = int(os.environ.get("WANDB_INIT_ATTEMPTS", 10))
             for attempt in range(num_attempts):
                 try:
                     # set up wandb
                     self._wandb_logger = wandb
 
-                    self._wandb_logger.init(
-                        entity=Macros.WANDB_ENTITY,
+                    init_kwargs = dict(
                         project=config.experiment.logging.wandb_proj_name,
                         name=config.experiment.name,
                         dir=log_dir,
-                        mode=("offline" if attempt == num_attempts - 1 else "online"),
+                        mode=(wandb_mode if wandb_mode is not None else ("offline" if attempt == num_attempts - 1 else "online")),
                     )
+                    if wandb_entity is not None and wandb_entity != "":
+                        init_kwargs["entity"] = wandb_entity
+                    self._wandb_logger.init(**init_kwargs)
 
                     # set up info for identifying experiment
                     wandb_config = {k: v for (k, v) in config.meta.items() if k not in ["hp_keys", "hp_values"]}

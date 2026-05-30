@@ -4,6 +4,7 @@ mainly consists of functions to assist with logging, rollouts, and the @run_epoc
 which is the core training logic for models in this repository.
 """
 import os
+import sys
 import time
 import datetime
 import shutil
@@ -65,7 +66,11 @@ def get_exp_dir(config, auto_remove_exp_dir=False, resume=False):
         assert os.path.isdir(os.path.join(base_output_dir, time_str)), "Found item {} that is not a subdirectory in {}".format(time_str, base_output_dir)
     elif os.path.exists(base_output_dir):
         if not auto_remove_exp_dir:
-            ans = input("WARNING: model directory ({}) already exists! \noverwrite? (y/n)\n".format(base_output_dir))
+            if sys.stdin.isatty():
+                ans = input("WARNING: model directory ({}) already exists! \noverwrite? (y/n)\n".format(base_output_dir))
+            else:
+                ans = "n"
+                print("WARNING: model directory ({}) already exists; keeping it and creating a new timestamped run.".format(base_output_dir))
         else:
             ans = "y"
         if ans == "y":
@@ -630,7 +635,13 @@ def save_model(model, config, env_meta, shape_meta, ckpt_path, variable_state=No
     if action_normalization_stats is not None:
         action_normalization_stats = deepcopy(action_normalization_stats)
         params["action_normalization_stats"] = TensorUtils.to_list(action_normalization_stats)
-    torch.save(params, ckpt_path)
+    tmp_ckpt_path = ckpt_path + ".tmp"
+    try:
+        torch.save(params, tmp_ckpt_path)
+        os.replace(tmp_ckpt_path, ckpt_path)
+    finally:
+        if os.path.exists(tmp_ckpt_path):
+            os.remove(tmp_ckpt_path)
     print("save checkpoint to {}".format(ckpt_path))
 
 

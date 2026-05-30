@@ -448,9 +448,14 @@ def train(config, device, resume=False):
             action_normalization_stats=action_normalization_stats,
         )
 
-        # keep a backup model in case last.pth is malformed (e.g. job died last time during saving)
-        shutil.copyfile(latest_model_path, latest_model_backup_path)
-        print("\nsaved backup of latest model at {}\n".format(latest_model_backup_path))
+        # Optionally keep a backup model in case last.pth is malformed.
+        # Disabled by default because DMD2 checkpoints are large.
+        save_latest_backup = os.environ.get("SAVE_LAST_BAK", "").lower() in {"1", "true", "yes", "on"}
+        if save_latest_backup:
+            shutil.copyfile(latest_model_path, latest_model_backup_path)
+            print("\nsaved backup of latest model at {}\n".format(latest_model_backup_path))
+        elif os.path.exists(latest_model_backup_path):
+            os.remove(latest_model_backup_path)
 
         # Finally, log memory usage in MB
         process = psutil.Process(os.getpid())

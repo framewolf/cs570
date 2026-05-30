@@ -193,15 +193,26 @@ class ConditionalUnet1D(nn.Module):
             sum(p.numel() for p in self.parameters()))
         )
 
-    def forward(self, 
-            sample: torch.Tensor, 
-            timestep: Union[torch.Tensor, float, int], 
+    def forward(self,
+            sample: torch.Tensor,
+            timestep: Union[torch.Tensor, float, int],
+            global_cond=None):
+        noise_pred, _ = self.forward_with_bottleneck(
+            sample=sample,
+            timestep=timestep,
+            global_cond=global_cond,
+        )
+        return noise_pred
+
+    def forward_with_bottleneck(self,
+            sample: torch.Tensor,
+            timestep: Union[torch.Tensor, float, int],
             global_cond=None):
         """
         x: (B,T,input_dim)
         timestep: (B,) or int, diffusion step
         global_cond: (B,global_cond_dim)
-        output: (B,T,input_dim)
+        output: (B,T,input_dim), bottleneck: (B,C,T_down)
         """
         # (B,T,C)
         sample = sample.moveaxis(-1,-2)
@@ -233,6 +244,7 @@ class ConditionalUnet1D(nn.Module):
 
         for mid_module in self.mid_modules:
             x = mid_module(x, global_feature)
+        bottleneck = x
 
         for idx, (resnet, resnet2, upsample) in enumerate(self.up_modules):
             x = torch.cat((x, h.pop()), dim=1)
@@ -245,4 +257,4 @@ class ConditionalUnet1D(nn.Module):
         # (B,C,T)
         x = x.moveaxis(-1,-2)
         # (B,T,C)
-        return x
+        return x, bottleneck
