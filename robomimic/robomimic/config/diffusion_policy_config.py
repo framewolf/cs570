@@ -15,14 +15,14 @@ class DiffusionPolicyConfig(BaseConfig):
         - set compatible data loading parameters
         """
         super(DiffusionPolicyConfig, self).train_config()
-        
+
         # disable next_obs loading from hdf5
         self.train.hdf5_load_next_obs = False
 
         # set compatible data loading parameters
         self.train.seq_length = 16 # should match self.algo.horizon.prediction_horizon
         self.train.frame_stack = 2 # should match self.algo.horizon.observation_horizon
-    
+
     def algo_config(self):
         """
         This function populates the `config.algo` attribute of the config, and is given to the 
@@ -30,7 +30,7 @@ class DiffusionPolicyConfig(BaseConfig):
         argument to the constructor. Any parameter that an algorithm needs to determine its 
         training and test-time behavior should be populated here.
         """
-        
+
         # optimization parameters
         self.algo.optim_params.policy.optimizer_type = "adamw"
         self.algo.optim_params.policy.learning_rate.initial = 1e-4      # policy learning rate
@@ -47,18 +47,18 @@ class DiffusionPolicyConfig(BaseConfig):
         self.algo.horizon.observation_horizon = 2
         self.algo.horizon.action_horizon = 8
         self.algo.horizon.prediction_horizon = 16
-        
+
         # UNet parameters
         self.algo.unet.enabled = True
         self.algo.unet.diffusion_step_embed_dim = 256
         self.algo.unet.down_dims = [256,512,1024]
         self.algo.unet.kernel_size = 5
         self.algo.unet.n_groups = 8
-        
+
         # EMA parameters
         self.algo.ema.enabled = True
         self.algo.ema.power = 0.75
-        
+
         # Noise Scheduler
         ## DDPM
         self.algo.ddpm.enabled = True
@@ -77,10 +77,18 @@ class DiffusionPolicyConfig(BaseConfig):
         self.algo.ddim.set_alpha_to_one = True
         self.algo.ddim.steps_offset = 0
         self.algo.ddim.prediction_type = 'epsilon'
-         # DEIS settings
+        # DEIS settings
         self.algo.deis.enabled = False
         self.algo.deis.num_train_timesteps = 100
         self.algo.deis.num_inference_timesteps = 10
         self.algo.deis.beta_schedule = 'squaredcos_cap_v2'
         self.algo.deis.solver_order = 2
         self.algo.deis.prediction_type = 'epsilon'
+        # DPM-Solver++
+        self.algo.dpm_solver.enabled = False
+        self.algo.dpm_solver.num_train_timesteps = 100
+        self.algo.dpm_solver.num_inference_timesteps = 10
+        self.algo.dpm_solver.beta_schedule = "squaredcos_cap_v2"
+        self.algo.dpm_solver.prediction_type = "epsilon"
+        self.algo.dpm_solver.algorithm_type = "dpmsolver++"
+        self.algo.dpm_solver.solver_order = 2
