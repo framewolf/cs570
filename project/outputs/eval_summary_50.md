@@ -1,4 +1,4 @@
-# DMD2 Eval Summary (50 Rollouts)
+# DMD2 Results (50 Rollouts)
 
 | Task | 6-step | 3-step | 1-step |
 |--------|--------|--------|--------|
