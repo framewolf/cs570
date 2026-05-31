@@ -29,3 +29,7 @@ events.out.tfevents.*
 __pycache__/
 *.py[cod]
 .DS_Store
+
+# Local checkpoint bundle and archives
+ckpt_bundle/
+*.tar.gz

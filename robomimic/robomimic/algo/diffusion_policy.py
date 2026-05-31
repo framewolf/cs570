@@ -388,6 +388,9 @@ class DiffusionPolicyUNet(PolicyAlgo):
                 model_output=noise_pred, timestep=k, sample=naction
             ).prev_sample
 
+            if self.algo_config.deis.enabled:
+                naction = naction.clamp(-1.0, 1.0)
+
         if self.ema is not None:
             self.ema.restore(self.nets.parameters())
         # process action using Ta
