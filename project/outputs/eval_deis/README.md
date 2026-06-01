@@ -49,7 +49,27 @@ DDPM/DDIM은 `clip_sample=True`로 학습되어 매 denoising step마다 sample�
 
 참고: **Teacher Baseline (DDPM 100-step)** — Lift 100% / Can 98% / Square 86% / Transport 56% / Tool Hang 70%
 
-### 3.3 Detailed Metrics
+### 3.3 Detailed Metrics — 팀 통일 포맷 (6/3/1-step)
+
+| Task | Step | Success Rate | Num Success | Horizon | Success Time (s) | Latency (ms/step) |
+|------|------|--------------|-------------|---------|------------------|-------------------|
+| Lift | 6-step  | 100.0% | 50/50 | 43.6 | 2.18 | 30.7 |
+| Lift | 3-step  | 100.0% | 50/50 | 43.6 | 2.18 | 29.1 |
+| Lift | 1-step  | 6.0%   | 3/50  | 381.5 | 19.07 | 20.6 |
+| Can  | 6-step  | 100.0% | 50/50 | 112.4 | 5.62 | 26.7 |
+| Can  | 3-step  | 100.0% | 50/50 | 112.6 | 5.63 | 26.1 |
+| Can  | 1-step  | 0.0%   | 0/50  | 400.0 | 20.00 | 22.3 |
+| Square | 6-step  | 88.0% | 44/50 | 184.2 | 9.21 | 25.6 |
+| Square | 3-step  | 80.0% | 40/50 | 203.7 | 10.19 | 24.6 |
+| Square | 1-step  | 0.0%  | 0/50  | 400.0 | 20.00 | 20.8 |
+| Transport | 6-step  | 42.0% | 21/50 | 593.1 | 29.66 | 36.6 |
+| Transport | 3-step  | 46.0% | 23/50 | 594.4 | 29.72 | 33.0 |
+| Transport | 1-step  | 0.0%  | 0/50  | 700.0 | 35.00 | 34.3 |
+| Tool Hang | 6-step  | 46.0% | 23/50 | 578.8 | 28.94 | 27.0 |
+| Tool Hang | 3-step  | 42.0% | 21/50 | 612.3 | 30.61 | 23.4 |
+| Tool Hang | 1-step  | 0.0%  | 0/50  | 700.0 | 35.00 | 23.2 |
+
+### 3.4 Detailed Metrics — 풀버전 (20/6/3/1-step)
 
 | Task | Step | Success Rate | Num Success | Horizon | Success Time (s) | Latency (ms/step) |
 |------|------|--------------|-------------|---------|------------------|-------------------|
