@@ -14,10 +14,16 @@ import torch.nn.functional as F
 # requires diffusers==0.11.1
 from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
 from diffusers.schedulers.scheduling_ddim import DDIMScheduler
-from diffusers.schedulers.scheduling_deis_multistep import DEISMultistepScheduler
-from diffusers.schedulers.scheduling_dpmsolver_multistep import (
-    DPMSolverMultistepScheduler,
-)
+try:
+    from diffusers.schedulers.scheduling_deis_multistep import DEISMultistepScheduler
+except ImportError:
+    DEISMultistepScheduler = None
+try:
+    from diffusers.schedulers.scheduling_dpmsolver_multistep import (
+        DPMSolverMultistepScheduler,
+    )
+except ImportError:
+    DPMSolverMultistepScheduler = None
 from diffusers.training_utils import EMAModel
 
 import robomimic.models.obs_nets as ObsNets
@@ -114,6 +120,10 @@ class DiffusionPolicyUNet(PolicyAlgo):
                 prediction_type=self.algo_config.ddim.prediction_type,
             )
         elif self.algo_config.deis.enabled:
+            if DEISMultistepScheduler is None:
+                raise ImportError(
+                    "DEIS scheduler is unavailable in this diffusers install."
+                )
             noise_scheduler = DEISMultistepScheduler(
                 num_train_timesteps=self.algo_config.deis.num_train_timesteps,
                 beta_schedule=self.algo_config.deis.beta_schedule,
@@ -121,6 +131,10 @@ class DiffusionPolicyUNet(PolicyAlgo):
                 prediction_type=self.algo_config.deis.prediction_type,
             )
         elif self.algo_config.dpm_solver.enabled:
+            if DPMSolverMultistepScheduler is None:
+                raise ImportError(
+                    "DPM-Solver scheduler is unavailable in this diffusers install."
+                )
             noise_scheduler = DPMSolverMultistepScheduler(
                 num_train_timesteps=self.algo_config.dpm_solver.num_train_timesteps,
                 beta_schedule=self.algo_config.dpm_solver.beta_schedule,
@@ -341,6 +355,8 @@ class DiffusionPolicyUNet(PolicyAlgo):
             num_inference_timesteps = self.algo_config.ddim.num_inference_timesteps
         elif self.algo_config.deis.enabled is True:
             num_inference_timesteps = self.algo_config.deis.num_inference_timesteps
+        elif self.algo_config.dpm_solver.enabled is True:
+            num_inference_timesteps = self.algo_config.dpm_solver.num_inference_timesteps
         else:
             raise ValueError
 

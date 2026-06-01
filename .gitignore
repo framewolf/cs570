@@ -3,6 +3,9 @@
 robosuite/
 .nested_git_backup/
 
+# Checkpoint bundles
+ckpt_bundle/
+
 # Project-generated artifacts
 project/results/
 project/outputs/
