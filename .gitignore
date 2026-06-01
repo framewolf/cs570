@@ -8,7 +8,8 @@ ckpt_bundle/
 
 # Project-generated artifacts
 project/results/
-project/outputs/
+project/outputs/*
+!project/outputs/output_summary.md
 project/logs/
 project/wandb/
 robomimic/datasets/

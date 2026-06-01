@@ -1,6 +1,7 @@
 # Training / evaluation outputs
 results/
-outputs/
+outputs/*
+!outputs/output_summary.md
 logs/
 wandb/
 
