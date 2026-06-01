@@ -98,7 +98,7 @@ DDPM/DDIM은 `clip_sample=True`로 학습되어 매 denoising step마다 sample�
 
 **(1) Lift / Can: 33배 가속 + baseline 동등.** DEIS 3-step에서 Lift 100%, Can 100% (baseline 100%, 98%). horizon도 baseline과 거의 동일. 즉 추가 학습 0의 비용으로 inference step을 33배(100→3) 줄여도 성능이 완벽히 유지된다. DEIS가 robot action diffusion에 잘 맞는 sampler임을 보여준다.
 
-**(2) Square / Transport / Tool Hang: 일부 성능 저하.** 어려운 task일수록 step 수에 더 민감하다. Square 86% → 70~88%, Transport 56% → 42~52%, Tool Hang 70% → 42~50%. 특히 Tool Hang은 20-step에서도 baseline 대비 약 -20%p로 가장 크게 저하된다. 정밀 조작이 필요한 task일수록 더 많은 step이 요구된다.
+**(2) Square / Transport / Tool Hang: 일부 성능 저하.** 어려운 task일수록 step 수에 더 민감하다. Square 86% → 70-88%, Transport 56% → 42-52%, Tool Hang 70% → 42-50%. 특히 Tool Hang은 20-step에서도 baseline 대비 약 -20%p로 가장 크게 저하된다. 정밀 조작이 필요한 task일수록 더 많은 step이 요구된다.
 
 **(3) 1-step의 절벽 — training-free의 본질적 한계.** 모든 task에서 1-step은 0~6%로 사실상 동작하지 못한다. DEIS는 ODE 솔버이므로 step 수가 너무 적으면 적분 오차가 누적되어 분포 자체가 무너진다. 같은 1-step에서 distillation 기반 방법(DMD2: Lift 6%, Progressive Distillation: Lift 2%)은 모델을 1-step 추론용으로 직접 학습시키기 때문에 일부 성공이 관찰되는 것과 대조된다. "샘플러 개선(training-free)"과 "학생 모델 distillation"은 가속 가능한 한계가 근본적으로 다르다.
 
