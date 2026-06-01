@@ -27,7 +27,17 @@ DDPM/DDIM은 `clip_sample=True`로 학습되어 매 denoising step마다 sample�
 
 ## 3. 결과 (50 rollouts each)
 
-### 3.1 Task × Step Success Rate
+### 3.1 팀 통일 포맷 — Success Rate (6/3/1-step)
+
+| Task      | 6-step         | 3-step         | 1-step       |
+|-----------|----------------|----------------|--------------|
+| Lift      | 100.0% (50/50) | 100.0% (50/50) | 6.0% (3/50)  |
+| Can       | 100.0% (50/50) | 100.0% (50/50) | 0.0% (0/50)  |
+| Square    | 88.0% (44/50)  | 80.0% (40/50)  | 0.0% (0/50)  |
+| Transport | 42.0% (21/50)  | 46.0% (23/50)  | 0.0% (0/50)  |
+| Tool Hang | 46.0% (23/50)  | 42.0% (21/50)  | 0.0% (0/50)  |
+
+### 3.2 풀버전 — Success Rate (20/6/3/1-step)
 
 | Task      | 20-step        | 6-step         | 3-step         | 1-step       |
 |-----------|----------------|----------------|----------------|--------------|
@@ -39,7 +49,7 @@ DDPM/DDIM은 `clip_sample=True`로 학습되어 매 denoising step마다 sample�
 
 참고: **Teacher Baseline (DDPM 100-step)** — Lift 100% / Can 98% / Square 86% / Transport 56% / Tool Hang 70%
 
-### 3.2 Detailed Metrics
+### 3.3 Detailed Metrics
 
 | Task | Step | Success Rate | Num Success | Horizon | Success Time (s) | Latency (ms/step) |
 |------|------|--------------|-------------|---------|------------------|-------------------|
